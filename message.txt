@@ -7,8 +7,8 @@ Tips:
 - To run commands as root, use doas(1)
 - Text editors available are vis(1) and ed(1)
 - To launch velox, run `swc-launch velox`.
-  * To launch st from velox, use Logo-Shift-Enter
-  * To launch netsurf from velox, use Logo-b
-  * To launch dmenu from velox, use Logo-r
+  * To launch st from velox, use Alt-Shift-Enter
+  * To launch netsurf from velox, use Alt-b
+  * To launch dmenu from velox, use Alt-r
 - To shutdown, run `kill -s USR1 1`.
 
