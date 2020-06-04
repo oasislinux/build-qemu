@@ -1,0 +1,28 @@
+image: alpine/latest
+packages:
+- bison
+- e2fsprogs
+- elfutils-dev
+- flex
+- linux-headers
+- qemu-img
+- xz
+sources:
+- https://github.com/oasislinux/build-qemu
+- https://github.com/oasislinux/linux-configs
+artifacts:
+- oasis-qemu.tar.xz
+tasks:
+- kernel: |
+    curl -LO https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-5.7.tar.xz
+    tar xfJ linux-5.7.tar.xz
+    cd linux-5.7
+    ./scripts/kconfig/merge_config.sh -n ~/linux-configs/qemu
+    make -j $(nproc)
+- image: |
+    cd build-qemu
+    mkdir oasis-qemu
+    sudo modprobe nbd
+    sudo ./build oasis-qemu/root.qcow2
+    cp run run-gfx message.txt ~/linux-5.7/arch/x86/boot/bzImage oasis-qemu
+    tar cvfJ ~/oasis-qemu.tar.xz oasis-qemu
