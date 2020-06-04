@@ -12,3 +12,5 @@ Tips:
   * To launch dmenu from velox, use Alt-r
 - To shutdown, run `kill -s USR1 1`.
 
+See README.md for more information.
+

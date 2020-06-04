@@ -48,19 +48,28 @@ qemu-nbd --connect=/dev/nbd0 "$img" ; nbd=1
 mke2fs -t ext4 /dev/nbd0
 mount -t ext4 /dev/nbd0 "$tmp/mnt" ; mnt=1
 git -C "$tmp/mnt" clone -c 'core.sharedRepository=group' "$src" src/oasis
-sed "/repo=/,/}/c	repo={path='../..', flags='', tag='tree', branch='oasis'}," "$tmp/mnt/src/oasis/config.def.lua" >"$tmp/mnt/src/oasis/config.lua"
+sed "
+	/repo=/,/}/c	repo={path='../..', flags='', tag='tree', branch='oasis'},
+	/sets\.core/{
+		i
+		{sets.devel},
+.
+		s/sets.core,/& sets.extra, sets.desktop,/
+	}
+" "$tmp/mnt/src/oasis/config.def.lua" >"$tmp/mnt/src/oasis/config.lua"
 git init --template "$tmp/mnt/src/oasis/template" "$tmp/mnt"
+chgrp -R 1 "$tmp/mnt/src" "$tmp/mnt/.git"
 git -C "$tmp/mnt" remote add origin "$root"
 git -C "$tmp/mnt" config remote.origin.fetch '+refs/heads/*:refs/remotes/origin/*'
 git -C "$tmp/mnt" fetch --depth=1 origin core extra desktop
-git -C "$tmp/mnt" branch oasis origin/core
-git -C "$tmp/mnt" checkout -b master oasis
+git -C "$tmp/mnt" checkout -b master origin/core
 GIT_AUTHOR_NAME='oasis' GIT_AUTHOR_EMAIL='oasis' \
 GIT_COMMITTER_NAME='oasis' GIT_COMMITTER_EMAIL='oasis' \
 	git -C "$tmp/mnt" merge --allow-unrelated --no-edit origin/extra
 GIT_AUTHOR_NAME='oasis' GIT_AUTHOR_EMAIL='oasis' \
 GIT_COMMITTER_NAME='oasis' GIT_COMMITTER_EMAIL='oasis' \
 	git -C "$tmp/mnt" merge --allow-unrelated --no-edit origin/desktop
+git -C "$tmp/mnt" branch oasis master
 git -C "$tmp/mnt" config branch.master.remote .
 git -C "$tmp/mnt" config branch.master.merge oasis
 if [ -d "$root" ] ; then
@@ -81,4 +90,6 @@ cat >"$tmp/mnt/root/.gitconfig" <<EOF
 EOF
 mkdir "$tmp/mnt/home/oasis"
 cp "$tmp/mnt/root/.gitconfig" "$tmp/mnt/home/oasis/.gitconfig"
+cp README.md "$tmp/mnt/root"
+cp README.md "$tmp/mnt/home/oasis"
 chown -R 1000:1000 "$tmp/mnt/home/oasis"
