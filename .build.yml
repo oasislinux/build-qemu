@@ -24,5 +24,5 @@ tasks:
     mkdir oasis-qemu
     sudo modprobe nbd
     sudo ./build oasis-qemu/root.qcow2
-    cp run run-gfx message.txt ~/linux-5.7/arch/x86/boot/bzImage oasis-qemu
+    cp run run-gfx message.txt README.md ~/linux-5.7/arch/x86/boot/bzImage oasis-qemu
     tar cvfJ ~/oasis-qemu.tar.xz oasis-qemu
