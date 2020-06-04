@@ -35,6 +35,24 @@ velox works similarly to dwm, and has similar default keybindings:
 - Move window to/from master area: `Alt-Enter`
 - Change workspace `Alt-[1-9]`
 
+## Rebuilding the system from source
+
+The image comes with the oasis source repository checked out at
+`/src/oasis`.
+
+	cd /src/oasis
+	# add development packages
+	doas git -C / pull --depth=1 --allow-unrelated --no-edit origin devel
+	# checkpoint root FS state
+	git -C / branch -f oasis master
+	# add x86_64-linux-musl toolchain
+	doas git -C / pull --depth=1 --allow-unrelated --no-edit toolchain master
+	# build
+	./setup.lua
+	samu commit
+	# merge to /
+	doas git -C / merge --no-edit
+
 ## Shutting down or rebooting
 
 You can shutdown by sending `SIGUSR1` to init, or reboot with `SIGINT`:
