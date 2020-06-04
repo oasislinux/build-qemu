@@ -1,12 +1,12 @@
 # oasis qemu image
 
-To launch in serial mode:
+To launch in graphics mode:
 
 	./run
 
-To launch in graphics mode:
+To launch in serial mode:
 
-	./run-qemu
+	./run -s
 
 ## QEMU monitor
 
