@@ -1,0 +1,84 @@
+#!/bin/sh
+
+set -e
+set -x
+
+usage() {
+	echo "usage: $0 image" >&2
+	exit 2
+}
+
+src=https://github.com/michaelforney/oasis.git
+root=https://github.com/oasislinux/root-x86_64.git
+etc=https://github.com/oasislinux/etc.git
+
+while getopts e:r:s: opt ; do
+	case $opt in
+	e) etc=$OPTARG ;;
+	r) root=$OPTARG ;;
+	s) src=$OPTARG ;;
+	?) usage ;;
+	esac
+done
+shift $(($OPTIND - 1))
+	
+[ $# = 1 ] || usage
+
+img=$1
+tmp=$(mktemp -d)
+nbd=0
+mnt=0
+
+if [ -d "$root" ] && ! expr "$root" : '^/' ; then
+	root=$PWD/$root
+fi
+
+cleanup() {
+	test "$mnt" = 0 || umount "$tmp/mnt"
+	test "$nbd" = 0 || qemu-nbd --disconnect /dev/nbd0
+	rm -rf "$tmp"
+}
+
+trap cleanup EXIT
+
+mkdir "$tmp/mnt"
+
+qemu-img create -f qcow2 "$img" 8G
+qemu-nbd --connect=/dev/nbd0 "$img" ; nbd=1
+mke2fs -t ext4 /dev/nbd0
+mount -t ext4 /dev/nbd0 "$tmp/mnt" ; mnt=1
+git -C "$tmp/mnt" clone -c 'core.sharedRepository=group' "$src" src/oasis
+sed "/repo=/,/}/c	repo={path='../..', flags='', tag='tree', branch='oasis'}," "$tmp/mnt/src/oasis/config.def.lua" >"$tmp/mnt/src/oasis/config.lua"
+git init --template "$tmp/mnt/src/oasis/template" "$tmp/mnt"
+git -C "$tmp/mnt" remote add origin "$root"
+git -C "$tmp/mnt" config remote.origin.fetch '+refs/heads/*:refs/remotes/origin/*'
+git -C "$tmp/mnt" fetch --depth=1 origin core extra desktop
+git -C "$tmp/mnt" branch oasis origin/core
+git -C "$tmp/mnt" checkout -b master oasis
+GIT_AUTHOR_NAME='oasis' GIT_AUTHOR_EMAIL='oasis' \
+GIT_COMMITTER_NAME='oasis' GIT_COMMITTER_EMAIL='oasis' \
+	git -C "$tmp/mnt" merge --allow-unrelated --no-edit origin/extra
+GIT_AUTHOR_NAME='oasis' GIT_AUTHOR_EMAIL='oasis' \
+GIT_COMMITTER_NAME='oasis' GIT_COMMITTER_EMAIL='oasis' \
+	git -C "$tmp/mnt" merge --allow-unrelated --no-edit origin/desktop
+git -C "$tmp/mnt" config branch.master.remote .
+git -C "$tmp/mnt" config branch.master.merge oasis
+if [ -d "$root" ] ; then
+	git -C "$tmp/mnt" remote remove origin
+fi
+git clone "$etc" "$tmp/etc"
+GIT_WORK_TREE="$tmp/mnt/etc" git -C "$tmp/etc" checkout -f qemu
+git -C "$tmp/mnt" remote add toolchain https://github.com/oasislinux/toolchain.git
+"$tmp/mnt/libexec/applyperms" -d "$tmp/mnt/etc"
+"$tmp/mnt/bin/makewhatis" "$tmp/mnt/share/man"
+
+cat >"$tmp/mnt/root/.gitconfig" <<EOF
+[user]
+	name = oasis
+	email = oasis
+[pull]
+	rebase = false
+EOF
+mkdir "$tmp/mnt/home/oasis"
+cp "$tmp/mnt/root/.gitconfig" "$tmp/mnt/home/oasis/.gitconfig"
+chown -R 1000:1000 "$tmp/mnt/home/oasis"

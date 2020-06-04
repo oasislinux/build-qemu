@@ -1,0 +1,8 @@
+Booting oasis qemu image...
+
+Tips:
+- The root password is empty.
+- To access the qemu console, use Ctrl-a c.
+- To shutdown, run `kill -s USR1 1`.
+- To launch velox, run `swc-launch velox`.
+
