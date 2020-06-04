@@ -51,9 +51,7 @@ git -C "$tmp/mnt" clone -c 'core.sharedRepository=group' "$src" src/oasis
 sed "
 	/repo=/,/}/c	repo={path='../..', flags='', tag='tree', branch='oasis'},
 	/sets\.core/{
-		i
-		{sets.devel},
-.
+		i {sets.devel},
 		s/sets.core,/& sets.extra, sets.desktop,/
 	}
 " "$tmp/mnt/src/oasis/config.def.lua" >"$tmp/mnt/src/oasis/config.lua"
