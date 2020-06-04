@@ -1,8 +1,14 @@
 Booting oasis qemu image...
 
 Tips:
-- The root password is empty.
 - To access the qemu console, use Ctrl-a c.
-- To shutdown, run `kill -s USR1 1`.
+- The root password is empty.
+- A regular user 'oasis' is available, also with empty password.
+- To run commands as root, use doas(1)
+- Text editors available are vis(1) and ed(1)
 - To launch velox, run `swc-launch velox`.
+  * To launch st from velox, use Logo-Shift-Enter
+  * To launch netsurf from velox, use Logo-b
+  * To launch dmenu from velox, use Logo-r
+- To shutdown, run `kill -s USR1 1`.
 
