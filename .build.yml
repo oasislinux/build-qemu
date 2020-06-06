@@ -1,28 +1,20 @@
 image: alpine/latest
 packages:
-- bison
 - e2fsprogs
-- elfutils-dev
-- flex
-- linux-headers
 - qemu-img
 - xz
 sources:
-- https://git.sr.ht/~mcf/oasis-qemu
-- https://github.com/oasislinux/linux-configs
+- https://github.com/oasislinux/build-qemu
 artifacts:
 - oasis-qemu.tar.xz
+environment:
+  KERNEL_URL: https://patchouli.sr.ht/builds.sr.ht/artifacts/~mcf/228151/0b1755593d70e7e8/qemu-bzImage
 tasks:
-- kernel: |
-    curl -LO https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-5.7.tar.xz
-    tar xfJ linux-5.7.tar.xz
-    cd linux-5.7
-    ./scripts/kconfig/merge_config.sh -n ~/linux-configs/qemu
-    make -j $(nproc)
-- image: |
-    cd oasis-qemu
+- build: |
+    cd build-qemu
     mkdir oasis-qemu
     sudo modprobe nbd
     sudo ./build oasis-qemu/root.qcow2
-    cp run README.md ~/linux-5.7/arch/x86/boot/bzImage oasis-qemu
+    cp run README.md oasis-qemu
+    curl -Lo oasis-qemu/bzImage $KERNEL_URL
     tar cvfJ ~/oasis-qemu.tar.xz oasis-qemu
