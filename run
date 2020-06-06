@@ -1,21 +1,28 @@
 #!/bin/sh
 
+gflag=
 sflag=
-while getopts s opt; do
+while getopts gs opt; do
 	case $opt in
+	g) gflag=1 ;;
 	s) sflag=1 ;;
 	*)
-		printf "usage: %s [-s]\n" "$0" >&2
+		printf "usage: %s [-gs]\n" "$0" >&2
 		exit 1
 		;;
 	esac
 done
+shift $(($OPTIND - 1))
+
+if [ -z "$gflag" ] && [ -z "$sflag" ]; then
+	gflag=1
+fi
 
 cat <<'EOF'
 Booting oasis qemu image...
 
 Tips:
-- To access the qemu console, use Ctrl-a c.
+- To access the qemu monitor, use Ctrl-a c.
 - The root password is empty.
 - A regular user 'oasis' is available, also with empty password.
 - To run commands as root, use doas(1)
@@ -31,21 +38,26 @@ See README.md for more information.
 EOF
 
 append='init=/bin/sinit root=/dev/vda ro'
+stdio='stdio,id=stdio'
 
 if [ -n "$sflag" ]; then
 	append="$append console=hvc0"
+	stdio="$stdio,mux=on,signal=off"
 	set -- \
-		-chardev stdio,id=cons,mux=on,signal=off \
-		-device virtconsole,chardev=cons \
-		-display none \
+		-device virtio-serial \
+		-device virtconsole,chardev=stdio \
 		"$@"
-else
+fi
+
+if [ -n "$gflag" ]; then
+	append="$append console=tty0"
 	set -- \
-		-chardev stdio,id=cons \
 		-device virtio-keyboard \
 		-device virtio-tablet \
 		-device virtio-vga \
 		"$@"
+else
+	set -- -display none "$@"
 fi
 
 exec qemu-system-x86_64 \
@@ -54,8 +66,8 @@ exec qemu-system-x86_64 \
 	-append "$append" \
 	-device virtio-balloon \
 	-device virtio-rng \
-	-device virtio-serial \
 	-drive file=root.qcow2,media=disk,if=virtio \
 	-nic user,model=virtio \
-	-mon chardev=cons \
+	-chardev "$stdio" \
+	-mon chardev=stdio \
 	"$@"
