@@ -37,7 +37,7 @@ See README.md for more information.
 
 EOF
 
-append='init=/bin/sinit root=/dev/vda ro'
+append="init=/bin/sinit root=/dev/vda ro TERM=$TERM"
 stdio='stdio,id=stdio'
 
 if [ -n "$sflag" ]; then

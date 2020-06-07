@@ -15,10 +15,7 @@ In serial mode, you can switch to the QEMU console monitor with
 
 ## Text editor
 
-A vi-like text editor, vis(1) can be used. It does not work properly
-in serial mode, so should only be used in graphics mode.
-
-ed(1) is also available in serial mode if you know how to use it.
+Two text editors are available: vis(1), a vi-like text editor, and ed(1).
 
 ## Display server
 
