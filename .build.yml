@@ -8,7 +8,7 @@ sources:
 artifacts:
 - oasis-qemu.tar.xz
 environment:
-  KERNEL_URL: https://patchouli.sr.ht/builds.sr.ht/artifacts/~mcf/396384/c2ae20a4af8c2e7f/qemu-bzImage
+  KERNEL_URL: https://patchouli.sr.ht/builds.sr.ht/artifacts/~mcf/594565/ea8ea562d4f11f42/qemu-bzImage
 tasks:
 - build: |
     cd build-qemu
