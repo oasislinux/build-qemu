@@ -8,6 +8,9 @@ To launch in serial mode:
 
 	./run -s
 
+There is no password for `root` or `oasis`. To login, just hit enter
+at the password prompt.
+
 ## QEMU monitor
 
 In serial mode, you can switch to the QEMU console monitor with
