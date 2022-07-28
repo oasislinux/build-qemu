@@ -1,6 +1,7 @@
 echo "
 
 Booting oasis qemu image...
+(powershell script is GUI only)
 
 Tips:
 - The root password is empty.
@@ -36,4 +37,5 @@ qemu-system-x86_64 -m 2048 `
                    -nic user,model=virtio `
                    -chardev "$stdio" `
                    -mon chardev=stdio 
-echo "\nThanks for trying out oasis!"
+                   
+echo "'nThanks for trying out oasis!"
