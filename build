@@ -8,7 +8,7 @@ usage() {
 	exit 2
 }
 
-src=https://github.com/michaelforney/oasis.git
+src=https://github.com/oasislinux/oasis.git
 root=https://github.com/oasislinux/root-x86_64.git
 etc=https://github.com/oasislinux/etc.git
 
